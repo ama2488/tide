@@ -15,6 +15,8 @@ final class CycleStore: ObservableObject {
         static let healthSync = "tide.lastHealthSync"
         static let dismissed = "tide.promptDismissed"
         static let seeds = "tide.seedCycling"
+        static let swaps = "tide.swaps"
+        static let hidden = "tide.hiddenSuggestions"
     }
 
     private let defaults: UserDefaults
@@ -41,6 +43,12 @@ final class CycleStore: ObservableObject {
     @Published private(set) var healthConnected: Bool { didSet { defaults.set(healthConnected, forKey: Keys.health) } }
     @Published private(set) var lastHealthSync: Date? { didSet { defaults.set(lastHealthSync, forKey: Keys.healthSync) } }
     @Published private var dismissedPrompt: String { didSet { defaults.set(dismissedPrompt, forKey: Keys.dismissed) } }
+    /// "yyyy-MM-dd|kind" → how many times that category was refreshed that day.
+    @Published private var swaps: [String: Int] { didSet { defaults.set(swaps, forKey: Keys.swaps) } }
+    /// Suggestion ids the person never wants to see.
+    @Published private(set) var hiddenSuggestions: Set<String> {
+        didSet { defaults.set(Array(hiddenSuggestions), forKey: Keys.hidden) }
+    }
     /// "yyyy-MM-dd|suggestion.id" for each action checked off.
     @Published private(set) var completed: Set<String> { didSet { defaults.set(Array(completed), forKey: Keys.done) } }
 
@@ -67,6 +75,8 @@ final class CycleStore: ObservableObject {
         // keep only the last two weeks of check-offs
         let cutoff = Self.dayKey(cal.date(byAdding: .day, value: -14, to: Date()) ?? Date())
         completed = Set((defaults.stringArray(forKey: Keys.done) ?? []).filter { $0 >= cutoff })
+        swaps = ((defaults.dictionary(forKey: Keys.swaps) as? [String: Int]) ?? [:]).filter { $0.key >= cutoff }
+        hiddenSuggestions = Set(defaults.stringArray(forKey: Keys.hidden) ?? [])
 
         // people who onboarded before the log existed: seed it from their start date
         if periods.isEmpty && hasOnboarded {
@@ -104,7 +114,31 @@ final class CycleStore: ObservableObject {
         return stillFilling ? max(clamped, effectivePeriodLength) : clamped
     }
 
-    func plan(for date: Date) -> DailyPlan { DailyPlan.make(for: date, calendar: cycle, includeSeeds: seedCycling) }
+    func plan(for date: Date) -> DailyPlan {
+        let day = Self.dayKey(date)
+        var todaysSwaps: [SuggestionKind: Int] = [:]
+        for kind in SuggestionKind.allCases {
+            if let n = swaps["\(day)|\(kind.rawValue)"] { todaysSwaps[kind] = n }
+        }
+        return DailyPlan.make(for: date, calendar: cycle, includeSeeds: seedCycling,
+                              swaps: todaysSwaps, hidden: hiddenSuggestions)
+    }
+
+    // MARK: - Refresh / hide
+
+    /// "show me another" — steps to the next option in that category, for today only.
+    func swap(_ suggestion: Suggestion, on date: Date) {
+        swaps["\(Self.dayKey(date))|\(suggestion.kind.rawValue)", default: 0] += 1
+    }
+
+    /// "don't suggest this again" — removed from every day, until restored in settings.
+    func hide(_ suggestion: Suggestion) {
+        hiddenSuggestions.insert(suggestion.id)
+    }
+
+    func restoreHiddenSuggestions() {
+        hiddenSuggestions = []
+    }
 
     // MARK: - Period log
 
@@ -227,6 +261,8 @@ final class CycleStore: ObservableObject {
         periodLength = 5
         useHistory = true
         seedCycling = true
+        swaps = [:]
+        hiddenSuggestions = []
         healthConnected = false
         lastHealthSync = nil
         dismissedPrompt = ""

@@ -36,6 +36,11 @@ struct CycleCalendar: Equatable {
 
     func phase(on date: Date) -> Phase { phase(forDay: cycleDay(on: date)) }
 
+    /// The last five days before a period is due, plus any days running late.
+    func isLateLuteal(day: Int) -> Bool {
+        phase(forDay: day) == .luteal && day > cycleLength - 5
+    }
+
     /// First and last cycle day of a phase. `end < start` means the phase is
     /// too brief to show this cycle (e.g. a very short follicular phase).
     func bounds(of phase: Phase) -> (start: Int, end: Int) {

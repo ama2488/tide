@@ -8,6 +8,7 @@ struct SuggestionSheet: View {
     let suggestion: Suggestion
     let phase: Phase
     let date: Date
+    var canSwap: Bool = true
 
     var body: some View {
         let done = store.isDone(suggestion, on: date)
@@ -40,6 +41,35 @@ struct SuggestionSheet: View {
                         if !done { dismiss() }
                     }
                     .padding(.top, 8)
+
+                    if suggestion.kind == .seeds {
+                        Text("not doing seeds? turn seed cycling off in settings.")
+                            .font(TideFont.label(10))
+                            .foregroundStyle(Palette.soft)
+                            .frame(maxWidth: .infinity)
+                    } else {
+                        VStack(spacing: 18) {
+                            if canSwap {
+                                InkLink(title: "show me another") {
+                                    dismiss()
+                                    withAnimation(.easeInOut(duration: 0.35)) { store.swap(suggestion, on: date) }
+                                }
+                            }
+                            Button {
+                                dismiss()
+                                withAnimation(.easeInOut(duration: 0.35)) { store.hide(suggestion) }
+                            } label: {
+                                Text("don't suggest this again")
+                                    .font(TideFont.label(11))
+                                    .tracking(1)
+                                    .underline()
+                                    .foregroundStyle(Palette.soft)
+                                    .padding(6)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
 
                     if suggestion.kind == .steep {
                         Disclaimer()

@@ -75,4 +75,19 @@ struct PhaseContent {
     let movement: [Suggestion]
     let practices: [Suggestion]
     let encouragements: [String]
+    /// The last few days of the phase, when they call for something different
+    /// (only luteal, for now).
+    var late: LateContent? = nil
+}
+
+/// Late-phase suggestions that replace the main lists on those days.
+struct LateContent {
+    let intro: String
+    let foods: [Suggestion]
+    let herbs: [Suggestion]
+    let movement: [Suggestion]
+    let practices: [Suggestion]
+    let encouragements: [String]
+
+    var all: [Suggestion] { foods + herbs + movement + practices }
 }

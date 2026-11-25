@@ -61,7 +61,7 @@ struct TodayView: View {
             }
         }
         .sheet(item: $selected) { suggestion in
-            SuggestionSheet(suggestion: suggestion, phase: plan.phase, date: today)
+            SuggestionSheet(suggestion: suggestion, phase: plan.phase, date: today, canSwap: plan.canSwap(suggestion))
                 .environmentObject(store)
         }
         .sheet(item: $sheet) { which in
@@ -171,7 +171,13 @@ struct TodayView: View {
                     onToggle: {
                         withAnimation(.easeInOut(duration: 0.25)) { store.toggle(suggestion, on: today) }
                     },
-                    onOpen: { selected = suggestion }
+                    onOpen: { selected = suggestion },
+                    onSwap: plan.canSwap(suggestion) ? {
+                        withAnimation(.easeInOut(duration: 0.35)) { store.swap(suggestion, on: today) }
+                    } : nil,
+                    onHide: suggestion.kind == .seeds ? nil : {
+                        withAnimation(.easeInOut(duration: 0.35)) { store.hide(suggestion) }
+                    }
                 )
                 if index < plan.actions.count - 1 {
                     WobblyLine(seed: UInt64(index + 30), amplitude: 1)
@@ -210,6 +216,9 @@ struct ActionRow: View {
     let seed: UInt64
     let onToggle: () -> Void
     let onOpen: () -> Void
+    /// Long-press options. nil hides the option.
+    var onSwap: (() -> Void)? = nil
+    var onHide: (() -> Void)? = nil
 
     var body: some View {
         HStack(alignment: .center, spacing: 16) {
@@ -244,5 +253,15 @@ struct ActionRow: View {
             .buttonStyle(.plain)
         }
         .padding(.vertical, 16)
+        .contextMenu {
+            if let onSwap {
+                Button(action: onSwap) { Label("show me another", systemImage: "arrow.triangle.2.circlepath") }
+            }
+            if let onHide {
+                Button(role: .destructive, action: onHide) { Label("don't suggest this again", systemImage: "eye.slash") }
+            }
+        }
+        .transition(.opacity)
+        .id(suggestion.id)
     }
 }

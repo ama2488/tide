@@ -31,6 +31,18 @@ struct SettingsView: View {
                             .tint(Phase.menstrual.color)
                         }
 
+                        if !store.hiddenSuggestions.isEmpty {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Eyebrow("hidden suggestions")
+                                Text("you've asked tide not to suggest \(store.hiddenSuggestions.count) \(store.hiddenSuggestions.count == 1 ? "thing" : "things").")
+                                    .font(TideFont.body(15))
+                                    .foregroundStyle(Palette.soft)
+                                InkLink(title: "bring them back") {
+                                    withAnimation { store.restoreHiddenSuggestions() }
+                                }
+                            }
+                        }
+
                         VStack(alignment: .leading, spacing: 20) {
                             Text("everything stays on your phone. tide has no account and sends nothing anywhere.")
                                 .font(TideFont.body(15))

@@ -45,6 +45,11 @@ struct PhaseDetailView: View {
                         SuggestionList(kind: .seeds, items: Library.seeds(for: phase), color: phase.color)
                     }
 
+                    if let late = content.late {
+                        Prose(title: "the last few days", text: late.intro)
+                        SuggestionList(kind: .tend, items: late.all, color: phase.color, title: "for late \(phase.name)")
+                    }
+
                     Disclaimer()
                 }
                 .padding(28)
@@ -59,12 +64,14 @@ struct SuggestionList: View {
     let kind: SuggestionKind
     let items: [Suggestion]
     let color: Color
+    /// A custom heading for mixed lists; rows then show each item's kind.
+    var title: String? = nil
 
     @State private var open: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Eyebrow(kind.plural)
+            Eyebrow(title ?? kind.plural)
                 .padding(.bottom, 6)
 
             ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
@@ -77,6 +84,7 @@ struct SuggestionList: View {
                                 .font(TideFont.body(19))
                                 .foregroundStyle(Palette.ink)
                             Spacer()
+                            if title != nil { Eyebrow(item.kind.label) }
                             Text(open == item.id ? "–" : "+")
                                 .font(TideFont.label(15))
                                 .foregroundStyle(Palette.soft)

@@ -24,6 +24,19 @@ in `UserDefaults`.
 The simulator has its own Health app. Open it → *Browse* → *Cycle Tracking* →
 log a few periods a month apart. Then in tide: *settings → connect apple health*.
 
+## Daily suggestions
+
+Each day tide rotates to a new food, herb, movement and practice for your
+phase. In the **last five days of luteal** (and any days running late) it
+switches to gentler, PMS-focused lists and encouragement, and the subtitle
+reads "late luteal".
+
+Not into something? Tap **why** on it, or long-press the row:
+- **show me another** swaps that one category for today only.
+- **don't suggest this again** hides it for good (restore it in settings).
+
+The main screen gets no extra buttons.
+
 ## Seed cycling
 
 An optional fifth daily action (on by default; toggle in settings):

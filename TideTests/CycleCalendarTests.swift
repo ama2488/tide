@@ -74,7 +74,69 @@ final class CycleCalendarTests: XCTestCase {
             XCTAssertFalse(content.encouragements.isEmpty)
             let ids = (content.foods + content.herbs + content.movement + content.practices).map(\.id)
             XCTAssertEqual(Set(ids).count, ids.count, "duplicate suggestion ids in \(phase)")
+            if let late = content.late {
+                XCTAssertFalse(late.foods.isEmpty || late.herbs.isEmpty || late.movement.isEmpty
+                               || late.practices.isEmpty || late.encouragements.isEmpty)
+                let lateIds = late.all.map(\.id)
+                XCTAssertEqual(Set(lateIds).count, lateIds.count, "duplicate late ids in \(phase)")
+            }
         }
+        XCTAssertNotNil(Phase.luteal.content.late)
+    }
+
+    // MARK: late luteal
+
+    func testLateLutealIsTheLastFiveDays() {
+        let c = make() // 28 days
+        XCTAssertFalse(c.isLateLuteal(day: 16))
+        XCTAssertFalse(c.isLateLuteal(day: 23))
+        XCTAssertTrue((24...28).allSatisfy(c.isLateLuteal(day:)))
+        XCTAssertFalse(c.isLateLuteal(day: 3)) // menstrual
+    }
+
+    func testLateLutealUsesGentlerLists() {
+        let c = make()
+        let late = Phase.luteal.content.late!
+        let day25 = DailyPlan.make(for: date(2026, 11, 25), calendar: c)
+        XCTAssertTrue(day25.isLateLuteal)
+        XCTAssertTrue(day25.subtitle.hasPrefix("late luteal"))
+        XCTAssertTrue(late.foods.contains(day25.actions[0]))
+        XCTAssertTrue(late.encouragements.contains(day25.encouragement))
+
+        let day18 = DailyPlan.make(for: date(2026, 11, 18), calendar: c)
+        XCTAssertFalse(day18.isLateLuteal)
+        XCTAssertTrue(day18.subtitle.hasPrefix("inner autumn"))
+        XCTAssertTrue(Phase.luteal.content.foods.contains(day18.actions[0]))
+    }
+
+    // MARK: refresh / hide
+
+    func testSwapGivesADifferentSuggestionInTheSameCategory() {
+        let c = make()
+        let d = date(2026, 11, 18)
+        let base = DailyPlan.make(for: d, calendar: c)
+        let swapped = DailyPlan.make(for: d, calendar: c, swaps: [.steep: 1])
+        XCTAssertNotEqual(base.actions[1], swapped.actions[1])
+        XCTAssertEqual(swapped.actions[1].kind, .steep)
+        XCTAssertEqual(base.actions[0], swapped.actions[0]) // other categories untouched
+    }
+
+    func testHiddenSuggestionNeverAppears() {
+        let c = make()
+        let chasteberry = Phase.luteal.content.herbs.first { $0.name == "chasteberry" }!
+        for offset in 0..<28 {
+            let d = cal.date(byAdding: .day, value: offset, to: date(2026, 11, 1))!
+            for swaps in 0..<5 {
+                let plan = DailyPlan.make(for: d, calendar: c, swaps: [.steep: swaps], hidden: [chasteberry.id])
+                XCTAssertFalse(plan.actions.contains(chasteberry))
+            }
+        }
+    }
+
+    func testCannotSwapSeeds() {
+        let plan = DailyPlan.make(for: date(2026, 11, 18), calendar: make())
+        XCTAssertFalse(plan.canSwap(plan.actions[4]))
+        XCTAssertTrue(plan.canSwap(plan.actions[0]))
     }
 
     func testDailyPlanHasOneOfEachKind() {
