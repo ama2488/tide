@@ -45,6 +45,8 @@ struct PhaseDetailView: View {
                         SuggestionList(kind: .seeds, items: Library.seeds(for: phase), color: phase.color)
                     }
 
+                    PhaseRitualsSection(phase: phase)
+
                     if let late = content.late {
                         Prose(title: "the last few days", text: late.intro)
                         SuggestionList(kind: .tend, items: late.all, color: phase.color, title: "for late \(phase.name)")

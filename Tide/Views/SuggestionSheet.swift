@@ -9,6 +9,15 @@ struct SuggestionSheet: View {
     let phase: Phase
     let date: Date
     var canSwap: Bool = true
+    @State private var editingRitual: Ritual?
+
+    /// The action for tide's suggestions; when it's on for your own rituals.
+    private var subtitle: String {
+        if let ritual = store.ritual(for: suggestion) {
+            return "your ritual for \(CycleWindow.describe(ritual.windows))"
+        }
+        return suggestion.action
+    }
 
     var body: some View {
         let done = store.isDone(suggestion, on: date)
@@ -17,14 +26,14 @@ struct SuggestionSheet: View {
             PaperBackground()
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 28) {
-                    SheetHeader(title: "\(suggestion.kind.label) · \(phase.name)") { dismiss() }
+                    SheetHeader(title: "\(suggestion.label) · \(phase.name)") { dismiss() }
 
                     VStack(alignment: .leading, spacing: 12) {
                         Text(suggestion.name)
                             .font(TideFont.display(36))
                             .italic()
                             .foregroundStyle(Palette.ink)
-                        Text(suggestion.action)
+                        Text(subtitle)
                             .font(TideFont.body(19))
                             .foregroundStyle(Palette.soft)
                             .fixedSize(horizontal: false, vertical: true)
@@ -34,7 +43,7 @@ struct SuggestionSheet: View {
                         .stroke(phase.color, lineWidth: 1.5)
                         .frame(width: 64, height: 4)
 
-                    Prose(title: "why now", text: suggestion.why)
+                    Prose(title: suggestion.isRitual ? "your note" : "why now", text: suggestion.why)
 
                     InkButton(title: done ? "done — undo" : "mark as done", filled: !done, seed: 19) {
                         withAnimation(.easeInOut(duration: 0.25)) { store.toggle(suggestion, on: date) }
@@ -42,7 +51,10 @@ struct SuggestionSheet: View {
                     }
                     .padding(.top, 8)
 
-                    if suggestion.kind == .seeds {
+                    if let ritual = store.ritual(for: suggestion) {
+                        InkLink(title: "edit this ritual") { editingRitual = ritual }
+                            .frame(maxWidth: .infinity)
+                    } else if suggestion.kind == .seeds {
                         Text("not doing seeds? turn seed cycling off in settings.")
                             .font(TideFont.label(10))
                             .foregroundStyle(Palette.soft)
@@ -78,6 +90,7 @@ struct SuggestionSheet: View {
                 .padding(28)
             }
         }
+        .sheet(item: $editingRitual) { RitualEditor(existing: $0).environmentObject(store) }
         .presentationDetents([.medium, .large])
         .presentationBackground(Palette.paper)
         .presentationCornerRadius(28)

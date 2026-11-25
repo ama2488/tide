@@ -175,7 +175,7 @@ struct TodayView: View {
                     onSwap: plan.canSwap(suggestion) ? {
                         withAnimation(.easeInOut(duration: 0.35)) { store.swap(suggestion, on: today) }
                     } : nil,
-                    onHide: suggestion.kind == .seeds ? nil : {
+                    onHide: (suggestion.kind == .seeds || suggestion.isRitual) ? nil : {
                         withAnimation(.easeInOut(duration: 0.35)) { store.hide(suggestion) }
                     }
                 )
@@ -234,7 +234,7 @@ struct ActionRow: View {
             Button(action: onOpen) {
                 HStack(alignment: .center) {
                     VStack(alignment: .leading, spacing: 6) {
-                        Eyebrow(suggestion.kind.label)
+                        Eyebrow(suggestion.label)
                         Text(suggestion.action)
                             .font(TideFont.body(18))
                             .strikethrough(isDone, color: Palette.soft)

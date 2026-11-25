@@ -15,6 +15,7 @@ struct SettingsView: View {
                         SheetHeader(title: "settings") { dismiss() }
 
                         periodLog
+                        ritualsLink
                         if store.healthAvailable { appleHealth }
                         lengths
 
@@ -87,6 +88,26 @@ struct SettingsView: View {
                             .font(TideFont.body(20))
                             .foregroundStyle(Palette.ink)
                         Eyebrow("\(store.periods.count) logged")
+                    }
+                    Spacer()
+                    Text("→").font(TideFont.body(17)).foregroundStyle(Palette.soft)
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private var ritualsLink: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Eyebrow("your rituals")
+            NavigationLink { RitualsView() } label: {
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("teas, foods & practices")
+                            .font(TideFont.body(20))
+                            .foregroundStyle(Palette.ink)
+                        Eyebrow(store.rituals.isEmpty ? "add your own" : "\(store.rituals.count) added")
                     }
                     Spacer()
                     Text("→").font(TideFont.body(17)).foregroundStyle(Palette.soft)

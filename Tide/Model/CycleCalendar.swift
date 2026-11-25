@@ -41,6 +41,15 @@ struct CycleCalendar: Equatable {
         phase(forDay: day) == .luteal && day > cycleLength - 5
     }
 
+    func window(forDay day: Int) -> CycleWindow {
+        switch phase(forDay: day) {
+        case .menstrual: return .menstrual
+        case .follicular: return .follicular
+        case .ovulatory: return .ovulatory
+        case .luteal: return isLateLuteal(day: day) ? .lateLuteal : .earlyLuteal
+        }
+    }
+
     /// First and last cycle day of a phase. `end < start` means the phase is
     /// too brief to show this cycle (e.g. a very short follicular phase).
     func bounds(of phase: Phase) -> (start: Int, end: Int) {

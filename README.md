@@ -37,6 +37,14 @@ Not into something? Tap **why** on it, or long-press the row:
 
 The main screen gets no extra buttons.
 
+## Your rituals
+
+Add your own teas, foods or practices (settings → your rituals, or "add your
+own" on any phase page). Give each a name, an optional note, a type (steep,
+nourish, move, tend) and when it belongs: menstrual, follicular, ovulatory,
+early luteal, late luteal, or every day. On those days it takes the place of
+tide's suggestion of the same type, marked "yours".
+
 ## Seed cycling
 
 An optional fifth daily action (on by default; toggle in settings):

@@ -16,7 +16,7 @@ struct DailyPlan {
     let poolSizes: [SuggestionKind: Int]
 
     func canSwap(_ suggestion: Suggestion) -> Bool {
-        (poolSizes[suggestion.kind] ?? 0) > 1
+        !suggestion.isRitual && (poolSizes[suggestion.kind] ?? 0) > 1
     }
 
     var phaseLabel: String { isLateLuteal ? "late luteal" : phase.season }
@@ -35,8 +35,11 @@ struct DailyPlan {
     /// - Parameters:
     ///   - swaps: how many times each category was refreshed today.
     ///   - hidden: ids of suggestions the person never wants to see.
+    ///   - rituals: the person's own items; one for today takes the place of
+    ///     tide's suggestion of the same kind.
     static func make(for date: Date, calendar: CycleCalendar, includeSeeds: Bool = true,
-                     swaps: [SuggestionKind: Int] = [:], hidden: Set<String> = []) -> DailyPlan {
+                     swaps: [SuggestionKind: Int] = [:], hidden: Set<String> = [],
+                     rituals: [Ritual] = []) -> DailyPlan {
         let day = calendar.cycleDay(on: date)
         let phase = calendar.phase(forDay: day)
         let content = phase.content
@@ -54,12 +57,19 @@ struct DailyPlan {
             return pool[(day + offset + (swaps[kind] ?? 0)) % pool.count]
         }
 
-        var actions = [
-            pick(late?.foods ?? content.foods, .nourish, 0),
-            pick(late?.herbs ?? content.herbs, .steep, 1),
-            pick(late?.movement ?? content.movement, .move, 2),
-            pick(late?.practices ?? content.practices, .tend, 3),
-        ]
+        let window = calendar.window(forDay: day)
+        let todaysRituals = rituals.filter { $0.windows.contains(window) }
+
+        // your own rituals first; otherwise tide's pick
+        func slot(_ kind: SuggestionKind, _ list: [Suggestion], _ offset: Int) -> [Suggestion] {
+            let mine = todaysRituals.filter { $0.kind == kind }.map(\.suggestion)
+            return mine.isEmpty ? [pick(list, kind, offset)] : mine
+        }
+
+        var actions = slot(.nourish, late?.foods ?? content.foods, 0)
+            + slot(.steep, late?.herbs ?? content.herbs, 1)
+            + slot(.move, late?.movement ?? content.movement, 2)
+            + slot(.tend, late?.practices ?? content.practices, 3)
         if includeSeeds {
             actions.append(Library.seeds(forDay: day, ovulationDay: calendar.ovulationDay))
             poolSizes[.seeds] = 1

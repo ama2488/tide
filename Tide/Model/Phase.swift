@@ -37,7 +37,7 @@ enum Phase: String, CaseIterable, Identifiable, Hashable {
     var content: PhaseContent { Library.content(for: self) }
 }
 
-enum SuggestionKind: String, CaseIterable, Hashable {
+enum SuggestionKind: String, CaseIterable, Hashable, Codable {
     case nourish, steep, move, tend, seeds
 
     var label: String { rawValue }
@@ -61,8 +61,13 @@ struct Suggestion: Identifiable, Hashable {
     let action: String
     /// Why this helps right now. Secondary, shown on tap.
     let why: String
+    /// Set when this is one of the person's own rituals.
+    var ritualID: UUID? = nil
 
-    var id: String { "\(kind.rawValue).\(name)" }
+    var isRitual: Bool { ritualID != nil }
+    var id: String { ritualID.map { "ritual.\($0.uuidString)" } ?? "\(kind.rawValue).\(name)" }
+    /// "steep", or "steep · yours" for the person's own rituals.
+    var label: String { isRitual ? "\(kind.label) · yours" : kind.label }
 }
 
 struct PhaseContent {

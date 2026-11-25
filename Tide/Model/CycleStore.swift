@@ -17,6 +17,7 @@ final class CycleStore: ObservableObject {
         static let seeds = "tide.seedCycling"
         static let swaps = "tide.swaps"
         static let hidden = "tide.hiddenSuggestions"
+        static let rituals = "tide.rituals"
     }
 
     private let defaults: UserDefaults
@@ -49,6 +50,12 @@ final class CycleStore: ObservableObject {
     @Published private(set) var hiddenSuggestions: Set<String> {
         didSet { defaults.set(Array(hiddenSuggestions), forKey: Keys.hidden) }
     }
+    /// The person's own teas, foods and practices.
+    @Published private(set) var rituals: [Ritual] {
+        didSet {
+            if let data = try? JSONEncoder().encode(rituals) { defaults.set(data, forKey: Keys.rituals) }
+        }
+    }
     /// "yyyy-MM-dd|suggestion.id" for each action checked off.
     @Published private(set) var completed: Set<String> { didSet { defaults.set(Array(completed), forKey: Keys.done) } }
 
@@ -77,6 +84,8 @@ final class CycleStore: ObservableObject {
         completed = Set((defaults.stringArray(forKey: Keys.done) ?? []).filter { $0 >= cutoff })
         swaps = ((defaults.dictionary(forKey: Keys.swaps) as? [String: Int]) ?? [:]).filter { $0.key >= cutoff }
         hiddenSuggestions = Set(defaults.stringArray(forKey: Keys.hidden) ?? [])
+        rituals = defaults.data(forKey: Keys.rituals)
+            .flatMap { try? JSONDecoder().decode([Ritual].self, from: $0) } ?? []
 
         // people who onboarded before the log existed: seed it from their start date
         if periods.isEmpty && hasOnboarded {
@@ -121,7 +130,7 @@ final class CycleStore: ObservableObject {
             if let n = swaps["\(day)|\(kind.rawValue)"] { todaysSwaps[kind] = n }
         }
         return DailyPlan.make(for: date, calendar: cycle, includeSeeds: seedCycling,
-                              swaps: todaysSwaps, hidden: hiddenSuggestions)
+                              swaps: todaysSwaps, hidden: hiddenSuggestions, rituals: rituals)
     }
 
     // MARK: - Refresh / hide
@@ -138,6 +147,23 @@ final class CycleStore: ObservableObject {
 
     func restoreHiddenSuggestions() {
         hiddenSuggestions = []
+    }
+
+    // MARK: - Rituals
+
+    func ritual(for suggestion: Suggestion) -> Ritual? {
+        suggestion.ritualID.flatMap { id in rituals.first { $0.id == id } }
+    }
+
+    func save(_ ritual: Ritual) {
+        var clean = ritual
+        clean.name = ritual.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        clean.note = ritual.note.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let i = rituals.firstIndex(where: { $0.id == clean.id }) { rituals[i] = clean } else { rituals.append(clean) }
+    }
+
+    func delete(_ ritual: Ritual) {
+        rituals.removeAll { $0.id == ritual.id }
     }
 
     // MARK: - Period log
@@ -263,6 +289,7 @@ final class CycleStore: ObservableObject {
         seedCycling = true
         swaps = [:]
         hiddenSuggestions = []
+        rituals = []
         healthConnected = false
         lastHealthSync = nil
         dismissedPrompt = ""
