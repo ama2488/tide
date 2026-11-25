@@ -10,6 +10,7 @@ struct OnboardingView: View {
     @State private var period = 5
 
     @State private var connecting = false
+    @State private var importing = false
 
     /// 0 welcome · 1 last period · 2 cycle · 3 period · 4 apple health (if available)
     private var lastStep: Int { store.healthAvailable ? 4 : 3 }
@@ -71,11 +72,23 @@ struct OnboardingView: View {
                     InkButton(title: step == 0 ? "begin" : (step == lastStep ? "meet your day" : "next"), filled: true, seed: UInt64(step + 3)) {
                         advance()
                     }
+                    if step == 0 {
+                        Button { importing = true } label: {
+                            Text("restore from a backup")
+                                .font(TideFont.label(11))
+                                .tracking(1)
+                                .underline()
+                                .foregroundStyle(Palette.soft)
+                                .padding(.top, 16)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
             }
             .padding(.horizontal, 28)
             .padding(.vertical, 16)
         }
+        .backupImporter(isPresented: $importing)
     }
 
     // MARK: steps

@@ -44,6 +44,8 @@ struct SettingsView: View {
                             }
                         }
 
+                        BackupSection()
+
                         VStack(alignment: .leading, spacing: 20) {
                             Text("everything stays on your phone. persi has no account and sends nothing anywhere.")
                                 .font(TideFont.body(15))

@@ -297,6 +297,25 @@ final class CycleStore: ObservableObject {
         if completed.contains(k) { completed.remove(k) } else { completed.insert(k) }
     }
 
+    // MARK: - Backup
+
+    /// Replaces everything on this phone with the backup. Apple Health access
+    /// stays as it is on this phone.
+    func restore(_ backup: Backup) {
+        lastPeriodStart = backup.lastPeriodStart
+        cycleLength = min(max(backup.cycleLength, 21), 45)
+        periodLength = min(max(backup.periodLength, 2), 10)
+        useHistory = backup.useHistory
+        seedCycling = backup.seedCycling
+        periods = backup.periods.sorted { $0.start < $1.start }
+        rituals = backup.rituals
+        hiddenSuggestions = Set(backup.hiddenSuggestions)
+        swaps = [:]
+        completed = []
+        dismissedPrompt = ""
+        hasOnboarded = true
+    }
+
     // MARK: - Reset
 
     func reset() {

@@ -54,6 +54,13 @@ persi's suggestion of the same type, marked "yours".
 A ritual can also be a **protocol**: add several items (e.g. three teas) and
 they show together as one row, listed under the name, with one check-off.
 
+## Backup
+
+Settings → **your data**: *export a backup* saves periods, rituals and settings as
+one `.json` file (via the share sheet: Files, iCloud Drive, AirDrop, email).
+*restore* replaces everything with a backup, and the welcome screen offers
+*restore from a backup* for a new phone. Apple Health access isn't included.
+
 ## Seed cycling
 
 An optional fifth daily action (on by default; toggle in settings):
