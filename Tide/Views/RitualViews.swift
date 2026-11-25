@@ -71,12 +71,9 @@ struct RitualEditor: View {
                             }
                             .buttonStyle(.plain)
                         }
-                        windowRow(.menstrual, seed: 2)
-                        windowRow(.follicular, seed: 9)
-                        windowRow(.ovulatory, seed: 16)
-                        lutealRow
-                        windowRow(.earlyLuteal, seed: 23, nested: true)
-                        windowRow(.lateLuteal, seed: 30, nested: true)
+                        ForEach(Array(CycleWindow.allCases.enumerated()), id: \.element) { index, window in
+                            windowRow(window, seed: UInt64(index * 7 + 2))
+                        }
 
                         if let n = store.daysUntil(windows) {
                             Text(n == 0 ? "with your cycle as it is now, this shows today."
@@ -207,31 +204,7 @@ struct RitualEditor: View {
         .buttonStyle(PressStyle())
     }
 
-    /// "luteal" toggles both halves; the halves sit beneath it for finer timing.
-    private var lutealRow: some View {
-        let both: Set<CycleWindow> = [.earlyLuteal, .lateLuteal]
-        let on = both.isSubset(of: windows)
-        return Button {
-            withAnimation(.easeInOut(duration: 0.2)) {
-                if on { windows.subtract(both) } else { windows.formUnion(both) }
-            }
-        } label: {
-            HStack(spacing: 14) {
-                HandCheck(isOn: on, color: Phase.luteal.color, seed: 37)
-                Text("luteal")
-                    .font(TideFont.body(19))
-                    .foregroundStyle(Palette.ink)
-                Spacer()
-                Eyebrow("ovulation to period")
-            }
-            .padding(.vertical, 8)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .sensoryFeedback(.selection, trigger: on)
-    }
-
-    private func windowRow(_ window: CycleWindow, seed: UInt64, nested: Bool = false) -> some View {
+    private func windowRow(_ window: CycleWindow, seed: UInt64) -> some View {
         let on = windows.contains(window)
         return Button {
             withAnimation(.easeInOut(duration: 0.2)) {
@@ -240,15 +213,13 @@ struct RitualEditor: View {
         } label: {
             HStack(spacing: 14) {
                 HandCheck(isOn: on, color: window.phase.color, seed: seed)
-                    .scaleEffect(nested ? 0.75 : 1)
-                Text(nested ? (window == .earlyLuteal ? "the first part" : "the last 5 days") : window.label)
-                    .font(TideFont.body(nested ? 16 : 19))
-                    .foregroundStyle(nested ? Palette.soft : Palette.ink)
+                Text(window.label)
+                    .font(TideFont.body(19))
+                    .foregroundStyle(Palette.ink)
                 Spacer()
-                if !nested { Eyebrow(window.hint) }
+                Eyebrow(window.hint)
             }
-            .padding(.vertical, nested ? 2 : 8)
-            .padding(.leading, nested ? 34 : 0)
+            .padding(.vertical, 8)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
