@@ -59,6 +59,17 @@ struct TodayView: View {
                 .padding(.top, 8)
                 .padding(.bottom, 56)
             }
+
+            // paper behind the status bar, fading into the page
+            VStack(spacing: 0) {
+                Palette.paper
+                    .frame(height: 0)
+                    .ignoresSafeArea(edges: .top)
+                LinearGradient(colors: [Palette.paper, Palette.paper.opacity(0)], startPoint: .top, endPoint: .bottom)
+                    .frame(height: 18)
+                Spacer()
+            }
+            .allowsHitTesting(false)
         }
         .sheet(item: $selected) { suggestion in
             SuggestionSheet(suggestion: suggestion, phase: plan.phase, date: today, canSwap: plan.canSwap(suggestion))

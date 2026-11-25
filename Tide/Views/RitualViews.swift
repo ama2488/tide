@@ -71,8 +71,21 @@ struct RitualEditor: View {
                             }
                             .buttonStyle(.plain)
                         }
-                        ForEach(Array(CycleWindow.allCases.enumerated()), id: \.element) { index, window in
-                            windowRow(window, seed: UInt64(index * 7 + 2))
+                        windowRow(.menstrual, seed: 2)
+                        windowRow(.follicular, seed: 9)
+                        windowRow(.ovulatory, seed: 16)
+                        lutealRow
+                        windowRow(.earlyLuteal, seed: 23, nested: true)
+                        windowRow(.lateLuteal, seed: 30, nested: true)
+
+                        if let n = store.daysUntil(windows) {
+                            Text(n == 0 ? "with your cycle as it is now, this shows today."
+                                 : n == 1 ? "with your cycle as it is now, this first shows tomorrow."
+                                 : "with your cycle as it is now, this first shows in \(n) days.")
+                                .font(TideFont.label(10))
+                                .foregroundStyle(Palette.soft)
+                                .padding(.top, 12)
+                                .transition(.opacity)
                         }
                     }
 
@@ -194,7 +207,31 @@ struct RitualEditor: View {
         .buttonStyle(PressStyle())
     }
 
-    private func windowRow(_ window: CycleWindow, seed: UInt64) -> some View {
+    /// "luteal" toggles both halves; the halves sit beneath it for finer timing.
+    private var lutealRow: some View {
+        let both: Set<CycleWindow> = [.earlyLuteal, .lateLuteal]
+        let on = both.isSubset(of: windows)
+        return Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                if on { windows.subtract(both) } else { windows.formUnion(both) }
+            }
+        } label: {
+            HStack(spacing: 14) {
+                HandCheck(isOn: on, color: Phase.luteal.color, seed: 37)
+                Text("luteal")
+                    .font(TideFont.body(19))
+                    .foregroundStyle(Palette.ink)
+                Spacer()
+                Eyebrow("ovulation to period")
+            }
+            .padding(.vertical, 8)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .sensoryFeedback(.selection, trigger: on)
+    }
+
+    private func windowRow(_ window: CycleWindow, seed: UInt64, nested: Bool = false) -> some View {
         let on = windows.contains(window)
         return Button {
             withAnimation(.easeInOut(duration: 0.2)) {
@@ -203,13 +240,15 @@ struct RitualEditor: View {
         } label: {
             HStack(spacing: 14) {
                 HandCheck(isOn: on, color: window.phase.color, seed: seed)
-                Text(window.label)
-                    .font(TideFont.body(19))
-                    .foregroundStyle(Palette.ink)
+                    .scaleEffect(nested ? 0.75 : 1)
+                Text(nested ? (window == .earlyLuteal ? "the first part" : "the last 5 days") : window.label)
+                    .font(TideFont.body(nested ? 16 : 19))
+                    .foregroundStyle(nested ? Palette.soft : Palette.ink)
                 Spacer()
-                Eyebrow(window.hint)
+                if !nested { Eyebrow(window.hint) }
             }
-            .padding(.vertical, 8)
+            .padding(.vertical, nested ? 2 : 8)
+            .padding(.leading, nested ? 34 : 0)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -221,6 +260,8 @@ struct RitualEditor: View {
 
 struct RitualRow: View {
     let ritual: Ritual
+    /// "on today", "starts in 6 days"…
+    var showing: String? = nil
 
     var body: some View {
         HStack(spacing: 14) {
@@ -240,6 +281,12 @@ struct RitualRow: View {
                 Eyebrow(ritual.isProtocol
                         ? "\(ritual.items.count) \(ritual.kind.itemNoun(ritual.items.count)) · \(CycleWindow.describe(ritual.windows))"
                         : "\(ritual.kind.label) · \(CycleWindow.describe(ritual.windows))")
+                if let showing {
+                    Text(showing)
+                        .font(TideFont.body(14))
+                        .italic()
+                        .foregroundStyle(showing == "on today" ? Palette.ink : Palette.soft)
+                }
             }
             Spacer()
             Text("→").font(TideFont.body(16)).foregroundStyle(Palette.soft)
@@ -277,7 +324,7 @@ struct RitualsView: View {
                     } else {
                         VStack(spacing: 0) {
                             ForEach(sorted) { ritual in
-                                Button { editing = ritual } label: { RitualRow(ritual: ritual) }
+                                Button { editing = ritual } label: { RitualRow(ritual: ritual, showing: store.showingLabel(ritual.windows)) }
                                     .buttonStyle(.plain)
                                 WobblyLine(seed: UInt64(ritual.name.count + 3), amplitude: 0.8)
                                     .stroke(Palette.faint, lineWidth: 1)
@@ -319,7 +366,7 @@ struct PhaseRitualsSection: View {
             Eyebrow("your rituals")
                 .padding(.bottom, 6)
             ForEach(mine) { ritual in
-                Button { editing = ritual } label: { RitualRow(ritual: ritual) }
+                Button { editing = ritual } label: { RitualRow(ritual: ritual, showing: store.showingLabel(ritual.windows)) }
                     .buttonStyle(.plain)
                 WobblyLine(seed: UInt64(ritual.name.count + 7), amplitude: 0.8)
                     .stroke(Palette.faint, lineWidth: 1)

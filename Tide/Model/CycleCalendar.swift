@@ -41,6 +41,16 @@ struct CycleCalendar: Equatable {
         phase(forDay: day) == .luteal && day > cycleLength - 5
     }
 
+    /// Days from `date` until `window` is next in effect (0 = today), or nil if
+    /// it doesn't occur this cycle (e.g. a follicular phase too short to show).
+    func daysUntil(_ window: CycleWindow, from date: Date) -> Int? {
+        for offset in 0...(cycleLength + lateGrace) {
+            guard let d = calendar.date(byAdding: .day, value: offset, to: date) else { continue }
+            if self.window(forDay: cycleDay(on: d)) == window { return offset }
+        }
+        return nil
+    }
+
     func window(forDay day: Int) -> CycleWindow {
         switch phase(forDay: day) {
         case .menstrual: return .menstrual

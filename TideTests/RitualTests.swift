@@ -57,6 +57,14 @@ final class RitualTests: XCTestCase {
         XCTAssertNotEqual(a.suggestion.id, b.suggestion.id)
     }
 
+    func testDaysUntilAWindow() {
+        let nov20 = date(2026, 11, 20) // day 20, early luteal
+        XCTAssertEqual(cycle.daysUntil(.earlyLuteal, from: nov20), 0)
+        XCTAssertEqual(cycle.daysUntil(.lateLuteal, from: nov20), 4)   // day 24
+        XCTAssertEqual(cycle.daysUntil(.menstrual, from: nov20), 9)    // next day 1
+        XCTAssertEqual(cycle.daysUntil(.follicular, from: nov20), 14)  // next day 6
+    }
+
     func testDescribe() {
         XCTAssertEqual(CycleWindow.describe(Set(CycleWindow.allCases)), "every day")
         XCTAssertEqual(CycleWindow.describe([.earlyLuteal, .lateLuteal]), "luteal")

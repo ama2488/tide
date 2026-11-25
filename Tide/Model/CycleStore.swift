@@ -151,6 +151,22 @@ final class CycleStore: ObservableObject {
 
     // MARK: - Rituals
 
+    /// Days until any of these windows is in effect (0 = today).
+    func daysUntil(_ windows: Set<CycleWindow>, from date: Date = Date()) -> Int? {
+        let c = cycle
+        return windows.compactMap { c.daysUntil($0, from: date) }.min()
+    }
+
+    /// "on today", "starts tomorrow", "starts in 6 days".
+    func showingLabel(_ windows: Set<CycleWindow>) -> String? {
+        guard let n = daysUntil(windows) else { return nil }
+        switch n {
+        case 0: return "on today"
+        case 1: return "starts tomorrow"
+        default: return "starts in \(n) days"
+        }
+    }
+
     func ritual(for suggestion: Suggestion) -> Ritual? {
         suggestion.ritualID.flatMap { id in rituals.first { $0.id == id } }
     }
