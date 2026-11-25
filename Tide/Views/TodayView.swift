@@ -242,6 +242,15 @@ struct ActionRow: View {
                             .opacity(isDone ? 0.45 : 1)
                             .multilineTextAlignment(.leading)
                             .fixedSize(horizontal: false, vertical: true)
+                        if !suggestion.details.isEmpty {
+                            Text(suggestion.details.joined(separator: "  ·  "))
+                                .font(TideFont.body(15))
+                                .italic()
+                                .foregroundStyle(Palette.soft)
+                                .opacity(isDone ? 0.6 : 1)
+                                .multilineTextAlignment(.leading)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
                     }
                     Spacer(minLength: 12)
                     Text("why")

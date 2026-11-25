@@ -39,6 +39,23 @@ struct SuggestionSheet: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
 
+                    if !suggestion.details.isEmpty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Eyebrow("in this protocol")
+                            ForEach(Array(suggestion.details.enumerated()), id: \.offset) { index, item in
+                                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                                    WobblyCircle(seed: UInt64(index + 70), wobble: 0.08, closed: true)
+                                        .fill(phase.color)
+                                        .frame(width: 8, height: 8)
+                                    Text(item)
+                                        .font(TideFont.body(19))
+                                        .foregroundStyle(Palette.ink)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                            }
+                        }
+                    }
+
                     WobblyLine(seed: 4, amplitude: 1)
                         .stroke(phase.color, lineWidth: 1.5)
                         .frame(width: 64, height: 4)

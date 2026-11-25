@@ -159,6 +159,9 @@ final class CycleStore: ObservableObject {
         var clean = ritual
         clean.name = ritual.name.trimmingCharacters(in: .whitespacesAndNewlines)
         clean.note = ritual.note.trimmingCharacters(in: .whitespacesAndNewlines)
+        clean.items = ritual.items
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
         if let i = rituals.firstIndex(where: { $0.id == clean.id }) { rituals[i] = clean } else { rituals.append(clean) }
     }
 

@@ -64,6 +64,31 @@ final class RitualTests: XCTestCase {
         XCTAssertEqual(CycleWindow.describe([.follicular, .menstrual]), "menstrual, follicular")
     }
 
+    func testProtocolShowsAsOneRowWithItsItems() {
+        let luteal = Ritual(name: "rich sol · luteal", kind: .steep, windows: [.earlyLuteal, .lateLuteal],
+                            items: ["tea a", "tea b", "tea c"])
+        let plan = DailyPlan.make(for: date(2026, 11, 20), calendar: cycle, rituals: [luteal])
+        let steeps = plan.actions.filter { $0.kind == .steep }
+        XCTAssertEqual(steeps.count, 1)
+        XCTAssertEqual(steeps[0].details, ["tea a", "tea b", "tea c"])
+        XCTAssertTrue(luteal.isProtocol)
+        XCTAssertEqual(SuggestionKind.steep.itemNoun(3), "teas")
+    }
+
+    func testRitualsSavedBeforeProtocolsStillLoad() throws {
+        let old = #"[{"id":"6F9619FF-8B86-D011-B42D-00C04FC964FF","name":"moon tea","note":"","kind":"steep","windows":["menstrual"]}]"#
+        let rituals = try JSONDecoder().decode([Ritual].self, from: Data(old.utf8))
+        XCTAssertEqual(rituals.first?.name, "moon tea")
+        XCTAssertEqual(rituals.first?.items, [])
+        XCTAssertEqual(rituals.first?.windows, [.menstrual])
+    }
+
+    func testStoreDropsEmptyProtocolLines() {
+        let store = CycleStore(defaults: UserDefaults(suiteName: "tide.tests.\(UUID().uuidString)")!)
+        store.save(Ritual(name: "protocol", windows: [.follicular], items: [" tea a ", "", "  "]))
+        XCTAssertEqual(store.rituals.first?.items, ["tea a"])
+    }
+
     func testStorePersistsRituals() {
         let defaults = UserDefaults(suiteName: "tide.tests.\(UUID().uuidString)")!
         let store = CycleStore(defaults: defaults)

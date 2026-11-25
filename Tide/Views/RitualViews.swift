@@ -11,7 +11,15 @@ struct RitualEditor: View {
     @State private var note: String
     @State private var kind: SuggestionKind
     @State private var windows: Set<CycleWindow>
+    @State private var items: [DraftItem]
     @State private var confirmDelete = false
+    @FocusState private var focusedItem: UUID?
+
+    /// One editable line in a protocol.
+    struct DraftItem: Identifiable, Equatable {
+        let id = UUID()
+        var text: String
+    }
 
     init(existing: Ritual? = nil, suggestedWindows: Set<CycleWindow> = []) {
         self.existing = existing
@@ -19,6 +27,7 @@ struct RitualEditor: View {
         _note = State(initialValue: existing?.note ?? "")
         _kind = State(initialValue: existing?.kind ?? .steep)
         _windows = State(initialValue: existing?.windows ?? suggestedWindows)
+        _items = State(initialValue: (existing?.items ?? []).map { DraftItem(text: $0) })
     }
 
     private var canSave: Bool {
@@ -34,6 +43,8 @@ struct RitualEditor: View {
 
                     field("what is it?", text: $name, prompt: "e.g. moon mother · follicular tea", size: 24, seed: 3)
                     field("a note for yourself", text: $note, prompt: "optional · e.g. one cup each morning", size: 17, seed: 9)
+
+                    protocolItems
 
                     VStack(alignment: .leading, spacing: 14) {
                         Eyebrow("kind")
@@ -67,7 +78,8 @@ struct RitualEditor: View {
 
                     InkButton(title: "save", filled: true, seed: 33) {
                         guard canSave else { return }
-                        store.save(Ritual(id: existing?.id ?? UUID(), name: name, note: note, kind: kind, windows: windows))
+                        store.save(Ritual(id: existing?.id ?? UUID(), name: name, note: note, kind: kind,
+                                          windows: windows, items: items.map(\.text)))
                         dismiss()
                     }
                     .disabled(!canSave)
@@ -99,6 +111,55 @@ struct RitualEditor: View {
             }
             Button("cancel", role: .cancel) {}
         }
+    }
+
+    /// Optional list that turns a ritual into a protocol.
+    private var protocolItems: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Eyebrow(items.isEmpty ? "more than one? (optional)" : "\(kind.itemNoun(2)) in this protocol")
+            if items.isEmpty {
+                Text("add each \(kind.itemNoun(1)) and they'll show together as one row.")
+                    .font(TideFont.body(15))
+                    .foregroundStyle(Palette.soft)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            ForEach($items) { $item in
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    WobblyCircle(seed: UInt64(abs(item.id.hashValue) % 50), wobble: 0.08, closed: true)
+                        .fill(Palette.soft)
+                        .frame(width: 7, height: 7)
+                    TextField("\(kind.itemNoun(1))", text: $item.text,
+                              prompt: Text("e.g. \(kind == .steep ? "nettle + raspberry leaf" : kind.itemNoun(1))").foregroundStyle(Palette.faint))
+                        .font(TideFont.body(18))
+                        .foregroundStyle(Palette.ink)
+                        .focused($focusedItem, equals: item.id)
+                        .submitLabel(.next)
+                        .onSubmit { addItem() }
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) { items.removeAll { $0.id == item.id } }
+                    } label: {
+                        Text("×")
+                            .font(TideFont.body(20))
+                            .foregroundStyle(Palette.soft)
+                            .padding(.horizontal, 6)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("remove")
+                }
+                WobblyLine(seed: UInt64(abs(item.id.hashValue) % 40), amplitude: 0.8)
+                    .stroke(Palette.faint, lineWidth: 1)
+                    .frame(height: 3)
+            }
+            InkLink(title: "+ add a \(kind.itemNoun(1))") { addItem() }
+                .padding(.top, 4)
+        }
+    }
+
+    private func addItem() {
+        let new = DraftItem(text: "")
+        withAnimation(.easeInOut(duration: 0.2)) { items.append(new) }
+        focusedItem = new.id
     }
 
     private func field(_ label: String, text: Binding<String>, prompt: String, size: CGFloat, seed: UInt64) -> some View {
@@ -176,7 +237,9 @@ struct RitualRow: View {
                     .font(TideFont.body(19))
                     .foregroundStyle(Palette.ink)
                     .multilineTextAlignment(.leading)
-                Eyebrow("\(ritual.kind.label) · \(CycleWindow.describe(ritual.windows))")
+                Eyebrow(ritual.isProtocol
+                        ? "\(ritual.items.count) \(ritual.kind.itemNoun(ritual.items.count)) · \(CycleWindow.describe(ritual.windows))"
+                        : "\(ritual.kind.label) · \(CycleWindow.describe(ritual.windows))")
             }
             Spacer()
             Text("→").font(TideFont.body(16)).foregroundStyle(Palette.soft)

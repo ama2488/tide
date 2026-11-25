@@ -51,6 +51,17 @@ enum SuggestionKind: String, CaseIterable, Hashable, Codable {
         case .seeds: "seed cycling"
         }
     }
+
+    /// What the things inside a protocol of this kind are called.
+    func itemNoun(_ count: Int) -> String {
+        let one = count == 1
+        switch self {
+        case .steep: return one ? "tea" : "teas"
+        case .nourish: return one ? "food" : "foods"
+        case .move: return one ? "move" : "moves"
+        case .tend, .seeds: return one ? "step" : "steps"
+        }
+    }
 }
 
 struct Suggestion: Identifiable, Hashable {
@@ -63,6 +74,8 @@ struct Suggestion: Identifiable, Hashable {
     let why: String
     /// Set when this is one of the person's own rituals.
     var ritualID: UUID? = nil
+    /// The items in a ritual protocol, e.g. three teas.
+    var details: [String] = []
 
     var isRitual: Bool { ritualID != nil }
     var id: String { ritualID.map { "ritual.\($0.uuidString)" } ?? "\(kind.rawValue).\(name)" }

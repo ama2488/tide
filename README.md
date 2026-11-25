@@ -45,6 +45,9 @@ nourish, move, tend) and when it belongs: menstrual, follicular, ovulatory,
 early luteal, late luteal, or every day. On those days it takes the place of
 tide's suggestion of the same type, marked "yours".
 
+A ritual can also be a **protocol**: add several items (e.g. three teas) and
+they show together as one row, listed under the name, with one check-off.
+
 ## Seed cycling
 
 An optional fifth daily action (on by default; toggle in settings):
