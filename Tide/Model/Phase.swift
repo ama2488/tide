@@ -38,7 +38,7 @@ enum Phase: String, CaseIterable, Identifiable, Hashable {
 }
 
 enum SuggestionKind: String, CaseIterable, Hashable {
-    case nourish, steep, move, tend
+    case nourish, steep, move, tend, seeds
 
     var label: String { rawValue }
 
@@ -48,6 +48,7 @@ enum SuggestionKind: String, CaseIterable, Hashable {
         case .steep: "herbs to steep"
         case .move: "ways to move"
         case .tend: "ways to tend"
+        case .seeds: "seed cycling"
         }
     }
 }

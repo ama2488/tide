@@ -3,6 +3,7 @@ import SwiftUI
 /// The secondary layer: what's happening hormonally, how you might feel,
 /// and the full menu for this phase — each with a tappable "why".
 struct PhaseDetailView: View {
+    @EnvironmentObject private var store: CycleStore
     @Environment(\.dismiss) private var dismiss
 
     let phase: Phase
@@ -40,6 +41,9 @@ struct PhaseDetailView: View {
                     SuggestionList(kind: .steep, items: content.herbs, color: phase.color)
                     SuggestionList(kind: .move, items: content.movement, color: phase.color)
                     SuggestionList(kind: .tend, items: content.practices, color: phase.color)
+                    if store.seedCycling {
+                        SuggestionList(kind: .seeds, items: Library.seeds(for: phase), color: phase.color)
+                    }
 
                     Disclaimer()
                 }

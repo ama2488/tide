@@ -24,6 +24,14 @@ in `UserDefaults`.
 The simulator has its own Health app. Open it → *Browse* → *Cycle Tracking* →
 log a few periods a month apart. Then in tide: *settings → connect apple health*.
 
+## Seed cycling
+
+An optional fifth daily action (on by default; toggle in settings):
+**flax + pumpkin** from day 1 through ovulation, then **sunflower + sesame**
+until the next period. The action notes the switch days ("time to switch:",
+"new cycle, back to:"), and each phase's detail page has a seed-cycling
+section. The copy is honest that research on seed cycling itself is thin.
+
 ## Period log
 
 Every "my period started / ended" tap is saved. Once there are **two complete

@@ -18,6 +18,19 @@ struct SettingsView: View {
                         if store.healthAvailable { appleHealth }
                         lengths
 
+                        VStack(alignment: .leading, spacing: 12) {
+                            Eyebrow("daily rituals")
+                            Toggle(isOn: $store.seedCycling.animation(.easeInOut(duration: 0.3))) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("seed cycling")
+                                        .font(TideFont.body(17))
+                                        .foregroundStyle(Palette.ink)
+                                    Eyebrow("flax + pumpkin, then sunflower + sesame")
+                                }
+                            }
+                            .tint(Phase.menstrual.color)
+                        }
+
                         VStack(alignment: .leading, spacing: 20) {
                             Text("everything stays on your phone. tide has no account and sends nothing anywhere.")
                                 .font(TideFont.body(15))

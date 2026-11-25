@@ -81,7 +81,22 @@ final class CycleCalendarTests: XCTestCase {
         let c = make()
         for day in 0..<28 {
             let plan = DailyPlan.make(for: cal.date(byAdding: .day, value: day, to: date(2026, 11, 1))!, calendar: c)
-            XCTAssertEqual(plan.actions.map(\.kind), [.nourish, .steep, .move, .tend])
+            XCTAssertEqual(plan.actions.map(\.kind), [.nourish, .steep, .move, .tend, .seeds])
+            let withoutSeeds = DailyPlan.make(for: plan.date, calendar: c, includeSeeds: false)
+            XCTAssertEqual(withoutSeeds.actions.map(\.kind), [.nourish, .steep, .move, .tend])
         }
+    }
+
+    func testSeedCyclingSwitchesAfterOvulation() {
+        let c = make() // ovulation on day 14
+        XCTAssertEqual(Library.seeds(forDay: 1, ovulationDay: c.ovulationDay).name, "flax + pumpkin")
+        XCTAssertEqual(Library.seeds(forDay: 14, ovulationDay: c.ovulationDay).name, "flax + pumpkin")
+        XCTAssertEqual(Library.seeds(forDay: 15, ovulationDay: c.ovulationDay).name, "sunflower + sesame")
+        XCTAssertEqual(Library.seeds(forDay: 28, ovulationDay: c.ovulationDay).name, "sunflower + sesame")
+        // switch days get a nudge, but keep the same id so check-offs stay put
+        let switchDay = Library.seeds(forDay: 15, ovulationDay: 14)
+        XCTAssertTrue(switchDay.action.hasPrefix("time to switch"))
+        XCTAssertEqual(switchDay.id, Library.seeds(forDay: 20, ovulationDay: 14).id)
+        XCTAssertTrue(Library.seeds(forDay: 1, ovulationDay: 14).action.hasPrefix("new cycle"))
     }
 }

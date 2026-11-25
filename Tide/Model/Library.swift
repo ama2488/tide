@@ -26,6 +26,55 @@ enum Library {
         Suggestion(kind: .tend, name: name, action: action, why: why)
     }
 
+    // MARK: - Seed cycling
+
+    /// The two halves of seed cycling: flax + pumpkin from day 1 through
+    /// ovulation, sunflower + sesame from ovulation until the next period.
+    enum SeedHalf { case first, second }
+
+    static func seedHalf(forDay day: Int, ovulationDay: Int) -> SeedHalf {
+        day <= ovulationDay ? .first : .second
+    }
+
+    static func seeds(_ half: SeedHalf) -> Suggestion {
+        switch half {
+        case .first:
+            Suggestion(
+                kind: .seeds,
+                name: "flax + pumpkin",
+                action: "a tablespoon each of ground flax and pumpkin seeds",
+                why: "seed cycling pairs different seeds with the two halves of your cycle. from your period until ovulation, it's flax and pumpkin: flax's lignans may help your body balance rising estrogen, and pumpkin seeds are rich in zinc, which supports the follicle as it matures. grind the flax (or buy it ground) so your body can use it. research on seed cycling itself is still thin, so treat it as a simple, nourishing daily ritual rather than a treatment. tide will tell you when to switch."
+            )
+        case .second:
+            Suggestion(
+                kind: .seeds,
+                name: "sunflower + sesame",
+                action: "a tablespoon each of sunflower and sesame seeds",
+                why: "after ovulation, seed cycling switches to sunflower and sesame. sunflower seeds bring vitamin e and selenium, and sesame brings zinc and its own lignans, nutrients traditionally used to support progesterone in the second half of the cycle. research on seed cycling itself is still thin, so treat it as a simple, nourishing daily ritual rather than a treatment. you'll switch back to flax and pumpkin when your next period starts."
+            )
+        }
+    }
+
+    /// Today's seeds, with a nudge on the days it changes over.
+    static func seeds(forDay day: Int, ovulationDay: Int) -> Suggestion {
+        let half = seedHalf(forDay: day, ovulationDay: ovulationDay)
+        let base = seeds(half)
+        var note: String?
+        if half == .first && day == 1 { note = "new cycle, back to: " }
+        if half == .second && day == ovulationDay + 1 { note = "time to switch: " }
+        guard let note else { return base }
+        return Suggestion(kind: base.kind, name: base.name, action: note + base.action, why: base.why)
+    }
+
+    /// Which seeds belong to a phase, for the phase detail page.
+    static func seeds(for phase: Phase) -> [Suggestion] {
+        switch phase {
+        case .menstrual, .follicular: [seeds(.first)]
+        case .ovulatory: [seeds(.first), seeds(.second)]
+        case .luteal: [seeds(.second)]
+        }
+    }
+
     // MARK: - Menstrual · inner winter
 
     static let menstrual = PhaseContent(
@@ -111,12 +160,12 @@ enum Library {
             food("fermented foods",
                  "add a forkful of kimchi or sauerkraut",
                  "your gut helps recycle and clear estrogen through a group of microbes nicknamed the estrobolome. fermented foods support that ecosystem as estrogen rises."),
-            food("ground flax",
-                 "stir a spoonful of ground flax into breakfast",
-                 "flax contains lignans that interact gently with estrogen. 'seed cycling' favors flax and pumpkin seeds now — the evidence is thin, but it's an easy fiber boost either way."),
-            food("pumpkin seeds",
-                 "snack on a handful of pumpkin seeds",
-                 "pumpkin seeds are rich in zinc, which plays a role in healthy follicle development and the hormones that drive it."),
+            food("avocado",
+                 "add half an avocado to a meal",
+                 "healthy fats are the raw material for hormones, and avocado brings fiber and vitamin e alongside them as estrogen builds."),
+            food("broccoli sprouts",
+                 "top lunch with a handful of broccoli sprouts",
+                 "sprouts are a concentrated source of sulforaphane, which supports the liver pathways that process estrogen as it rises."),
             food("eggs",
                  "build your breakfast around eggs",
                  "protein, b vitamins and choline give your body raw material for rising energy as the follicle matures."),
@@ -258,9 +307,9 @@ enum Library {
             food("sweet potato",
                  "roast a sweet potato",
                  "your metabolism runs a little higher now. complex carbs steady blood sugar and help your body make serotonin, which can dip before your period."),
-            food("sunflower + sesame",
-                 "snack on sunflower or sesame seeds",
-                 "they offer vitamin e, zinc and selenium. 'seed cycling' favors them in this phase to support progesterone — evidence is limited, but they're good for you regardless."),
+            food("salmon",
+                 "have salmon or another oily fish",
+                 "omega-3 fats are anti-inflammatory, and studies suggest they may ease pms mood symptoms and cramping."),
             food("chickpeas",
                  "add chickpeas to lunch",
                  "chickpeas are rich in vitamin b6, which has been studied for easing pms mood symptoms."),

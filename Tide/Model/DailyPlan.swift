@@ -21,7 +21,7 @@ struct DailyPlan {
         }
     }
 
-    static func make(for date: Date, calendar: CycleCalendar) -> DailyPlan {
+    static func make(for date: Date, calendar: CycleCalendar, includeSeeds: Bool = true) -> DailyPlan {
         let day = calendar.cycleDay(on: date)
         let phase = calendar.phase(forDay: day)
         let content = phase.content
@@ -32,18 +32,23 @@ struct DailyPlan {
             list[(day + offset) % list.count]
         }
 
+        var actions = [
+            pick(content.foods, 0),
+            pick(content.herbs, 1),
+            pick(content.movement, 2),
+            pick(content.practices, 3),
+        ]
+        if includeSeeds {
+            actions.append(Library.seeds(forDay: day, ovulationDay: calendar.ovulationDay))
+        }
+
         return DailyPlan(
             date: date,
             cycleDay: day,
             phase: phase,
             daysUntilPeriod: calendar.daysUntilNextPeriod(from: date),
             encouragement: content.encouragements[day % content.encouragements.count],
-            actions: [
-                pick(content.foods, 0),
-                pick(content.herbs, 1),
-                pick(content.movement, 2),
-                pick(content.practices, 3),
-            ]
+            actions: actions
         )
     }
 }

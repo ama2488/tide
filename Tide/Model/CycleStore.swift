@@ -14,6 +14,7 @@ final class CycleStore: ObservableObject {
         static let health = "tide.healthConnected"
         static let healthSync = "tide.lastHealthSync"
         static let dismissed = "tide.promptDismissed"
+        static let seeds = "tide.seedCycling"
     }
 
     private let defaults: UserDefaults
@@ -27,6 +28,8 @@ final class CycleStore: ObservableObject {
     @Published var periodLength: Int { didSet { defaults.set(periodLength, forKey: Keys.period) } }
     /// Prefer averages learned from the log over the numbers above.
     @Published var useHistory: Bool { didSet { defaults.set(useHistory, forKey: Keys.useHistory) } }
+    /// Show a daily seed-cycling action.
+    @Published var seedCycling: Bool { didSet { defaults.set(seedCycling, forKey: Keys.seeds) } }
 
     /// Every logged period, oldest first.
     @Published private(set) var periods: [PeriodEntry] {
@@ -52,6 +55,7 @@ final class CycleStore: ObservableObject {
         let period = defaults.integer(forKey: Keys.period)
         periodLength = period == 0 ? 5 : period
         useHistory = defaults.object(forKey: Keys.useHistory) as? Bool ?? true
+        seedCycling = defaults.object(forKey: Keys.seeds) as? Bool ?? true
         healthConnected = defaults.bool(forKey: Keys.health)
         lastHealthSync = defaults.object(forKey: Keys.healthSync) as? Date
         dismissedPrompt = defaults.string(forKey: Keys.dismissed) ?? ""
@@ -100,7 +104,7 @@ final class CycleStore: ObservableObject {
         return stillFilling ? max(clamped, effectivePeriodLength) : clamped
     }
 
-    func plan(for date: Date) -> DailyPlan { DailyPlan.make(for: date, calendar: cycle) }
+    func plan(for date: Date) -> DailyPlan { DailyPlan.make(for: date, calendar: cycle, includeSeeds: seedCycling) }
 
     // MARK: - Period log
 
@@ -222,6 +226,7 @@ final class CycleStore: ObservableObject {
         cycleLength = 28
         periodLength = 5
         useHistory = true
+        seedCycling = true
         healthConnected = false
         lastHealthSync = nil
         dismissedPrompt = ""
