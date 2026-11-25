@@ -77,7 +77,7 @@ struct CycleWheel: View {
             let s = min(geo.size.width, geo.size.height)
             let length = Double(calendar.cycleLength)
             let radius = Double(s) / 2 - 16
-            let angle = (Double(today) - 0.5) / length * 2 * .pi - .pi / 2
+            let angle = (Double(min(today, calendar.cycleLength)) - 0.5) / length * 2 * .pi - .pi / 2
 
             ZStack {
                 WobblyCircle(seed: 77, wobble: 0.01)
@@ -163,7 +163,7 @@ struct HormoneChart: View {
 
                 // today
                 if let today {
-                    let x = (Double(today) - 0.5) / length * w
+                    let x = (Double(min(today, calendar.cycleLength)) - 0.5) / length * w
                     var line = Path()
                     line.move(to: CGPoint(x: x, y: 0))
                     line.addLine(to: CGPoint(x: x, y: h + 2))

@@ -20,6 +20,29 @@ Requirements: a Mac with **Xcode 16+**, iOS 17+ simulator or device.
 No dependencies, no accounts, no network. Everything is stored on the device
 in `UserDefaults`.
 
+### Trying Apple Health in the simulator
+The simulator has its own Health app. Open it → *Browse* → *Cycle Tracking* →
+log a few periods a month apart. Then in tide: *settings → connect apple health*.
+
+## Period log
+
+Every "my period started / ended" tap is saved. Once there are **two complete
+cycles** (three logged starts), tide uses the average of your last six cycles
+and periods instead of the numbers you entered at setup. Gaps over 45 days are
+treated as a missed log and skipped. You can turn learning off in settings.
+
+Around the edges of a period a small card appears on Today: *did your period
+start?* (from two days before it's due) or *has your period ended?* (from the
+expected last day). A late period reads as a longer luteal phase ("running 3
+days long") for up to 10 days, rather than jumping to day 1.
+
+## Apple Health
+
+Read-only. tide reads menstrual flow days from HealthKit, whichever app wrote
+them (Apple Cycle Tracking, Oura, Natural Cycles…), groups them into periods,
+and merges them into the log. A period you logged in tide always wins; Health
+only fills in its end date. Sync runs when the app opens.
+
 ## Structure
 
 ```
@@ -28,7 +51,9 @@ Tide/
   Model/
     CycleCalendar.swift      cycle day + phase estimation (pure, tested)
     DailyPlan.swift          today's phase, encouragement, 4 actions
-    CycleStore.swift         persisted settings + daily check-offs
+    CycleStore.swift         persisted settings, period log, check-offs
+    PeriodLog.swift          period entries, learned averages, prompts, grouping
+    HealthSync.swift         read-only Apple Health import
     Phase.swift              phases, colors, suggestion types
     Library.swift            all copy: foods, herbs, movement, practices, words
   Design/
@@ -40,9 +65,10 @@ Tide/
     SuggestionSheet.swift    tap an action → why
     PhaseDetailView.swift    hormones, how you might feel, full lists
     CycleView.swift          the whole cycle + "my period started today"
+    PeriodViews.swift        Today prompt card, log/edit sheet, history
     SettingsView.swift
-    OnboardingView.swift     three questions
-TideTests/                   cycle math + content tests
+    OnboardingView.swift     three questions (+ optional Apple Health)
+TideTests/                   cycle math, content, period log tests
 ```
 
 ## Design notes
@@ -70,7 +96,7 @@ Day 1 is the first day of bleeding. Ovulation is estimated at
 | ovulatory  | ovulation day ± 1                 |
 | luteal     | the rest                          |
 
-Tap **my period started today** on the cycle screen to reset day 1.
+Tap **my period started today** (cycle screen) or answer the prompt on Today to start a new cycle.
 
 ## A note on the content
 

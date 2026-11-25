@@ -8,14 +8,20 @@ struct CycleCalendar: Equatable {
     var cycleLength: Int
     var periodLength: Int
     var calendar: Calendar = .current
+    /// When the start date is a real logged period, a late period should read
+    /// as a longer luteal phase, not a surprise "day 1". For this many days past
+    /// the expected start, the count keeps going instead of wrapping.
+    var lateGrace: Int = 0
 
     /// 1‑based day of the current cycle on `date`. Projects forward (and
-    /// backward) by whole cycles from the last recorded start.
+    /// backward) by whole cycles from the last recorded start. May exceed
+    /// `cycleLength` during the late grace window.
     func cycleDay(on date: Date) -> Int {
         let start = calendar.startOfDay(for: lastPeriodStart)
         let day = calendar.startOfDay(for: date)
         let diff = calendar.dateComponents([.day], from: start, to: day).day ?? 0
         let length = max(1, cycleLength)
+        if diff >= length && diff < length + lateGrace { return diff + 1 }
         return ((diff % length) + length) % length + 1
     }
 
@@ -41,7 +47,8 @@ struct CycleCalendar: Equatable {
         }
     }
 
-    /// Days until the next expected period begins (1 = tomorrow).
+    /// Days until the next expected period begins (1 = tomorrow, 0 = today,
+    /// negative = running late).
     func daysUntilNextPeriod(from date: Date) -> Int {
         cycleLength - cycleDay(on: date) + 1
     }

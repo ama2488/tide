@@ -7,6 +7,7 @@ struct CycleView: View {
 
     let today: Date
     @State private var confirmNewCycle = false
+    @State private var logging = false
 
     var body: some View {
         let cycle = store.cycle
@@ -35,7 +36,20 @@ struct CycleView: View {
                         }
 
                         VStack(spacing: 14) {
+                            if cycle.phase(forDay: day) == .menstrual, store.latestPeriod != nil, store.latestPeriod?.end == nil {
+                                InkButton(title: "my period ended today", filled: true, seed: 27) {
+                                    withAnimation { store.logPeriodEnd(on: today) }
+                                }
+                            }
                             InkButton(title: "my period started today", seed: 23) { confirmNewCycle = true }
+
+                            HStack(spacing: 28) {
+                                InkLink(title: "log another date") { logging = true }
+                                NavigationLink { PeriodHistoryView() } label: { InkLinkLabel(title: "period history") }
+                                    .buttonStyle(PressStyle())
+                            }
+                            .padding(.vertical, 10)
+
                             Text("tide estimates your phases from averages. bodies aren't calendars — trust what you feel.")
                                 .font(TideFont.label(10))
                                 .lineSpacing(3)
@@ -50,6 +64,9 @@ struct CycleView: View {
             .navigationDestination(for: Phase.self) { phase in
                 PhaseDetailView(phase: phase, calendar: cycle, today: day, showsClose: false)
             }
+        }
+        .sheet(isPresented: $logging) {
+            LogPeriodSheet(existing: nil, suggestedStart: today).environmentObject(store)
         }
         .confirmationDialog("start a new cycle today?", isPresented: $confirmNewCycle, titleVisibility: .visible) {
             Button("yes, today is day 1") { store.markPeriodStarted(on: today) }

@@ -12,12 +12,13 @@ struct TodayView: View {
     @State private var breathe = false
 
     enum TodaySheet: String, Identifiable {
-        case phase, cycle, settings
+        case phase, cycle, settings, logStart, logEnd
         var id: String { rawValue }
     }
 
     var body: some View {
         let plan = store.plan(for: today)
+        let prompt = store.prompt(on: today)
 
         ZStack {
             PaperBackground()
@@ -32,6 +33,24 @@ struct TodayView: View {
                         .stroke(Palette.faint, lineWidth: 1)
                         .frame(height: 6)
                         .padding(.vertical, 36)
+
+                    if let prompt {
+                        PeriodPromptCard(
+                            prompt: prompt,
+                            onToday: {
+                                withAnimation(.easeInOut(duration: 0.4)) {
+                                    switch prompt {
+                                    case .started: store.logPeriodStart(on: today)
+                                    case .ended: store.logPeriodEnd(on: today)
+                                    }
+                                }
+                            },
+                            onEarlier: { sheet = prompt == .started ? .logStart : .logEnd },
+                            onNotYet: { withAnimation(.easeInOut(duration: 0.3)) { store.dismiss(prompt, on: today) } }
+                        )
+                        .padding(.bottom, 36)
+                        .transition(.opacity.combined(with: .scale(scale: 0.97)))
+                    }
 
                     actions(plan)
                     footer(plan).padding(.top, 48)
@@ -51,6 +70,10 @@ struct TodayView: View {
                 case .phase: PhaseDetailView(phase: plan.phase, calendar: store.cycle, today: plan.cycleDay)
                 case .cycle: CycleView(today: today)
                 case .settings: SettingsView()
+                case .logStart:
+                    LogPeriodSheet(existing: nil,
+                                   suggestedStart: Calendar.current.date(byAdding: .day, value: -1, to: today) ?? today)
+                case .logEnd: LogPeriodSheet(existing: store.latestPeriod, endedByDefault: true)
                 }
             }
             .environmentObject(store)
@@ -58,8 +81,12 @@ struct TodayView: View {
             .presentationCornerRadius(28)
         }
         .onChange(of: scenePhase) { _, newPhase in
-            if newPhase == .active { today = Date() }
+            if newPhase == .active {
+                today = Date()
+                Task { await store.syncHealth() }
+            }
         }
+        .task { await store.syncHealth() }
     }
 
     // MARK: sections

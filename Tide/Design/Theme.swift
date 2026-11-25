@@ -125,20 +125,44 @@ struct InkLink: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            Text(title)
-                .font(TideFont.body(17))
-                .italic()
-                .foregroundStyle(Palette.ink)
-                .padding(.bottom, 6)
-                .overlay(alignment: .bottom) {
-                    WobblyLine(seed: UInt64(title.count), amplitude: 1)
-                        .stroke(Palette.ink.opacity(0.55), lineWidth: 1)
-                        .frame(height: 4)
-                }
-                .contentShape(Rectangle())
+        Button(action: action) { InkLinkLabel(title: title) }
+            .buttonStyle(PressStyle())
+    }
+}
+
+/// The look of an InkLink, for use inside a NavigationLink.
+struct InkLinkLabel: View {
+    let title: String
+
+    var body: some View {
+        Text(title)
+            .font(TideFont.body(17))
+            .italic()
+            .foregroundStyle(Palette.ink)
+            .padding(.bottom, 6)
+            .overlay(alignment: .bottom) {
+                WobblyLine(seed: UInt64(title.count), amplitude: 1)
+                    .stroke(Palette.ink.opacity(0.55), lineWidth: 1)
+                    .frame(height: 4)
+            }
+            .contentShape(Rectangle())
+    }
+}
+
+/// A big number with a quiet note beneath, for values tide has learned.
+struct LearnedValue: View {
+    let value: Int
+    let note: String
+
+    var body: some View {
+        VStack(spacing: 4) {
+            Text("\(value)")
+                .font(TideFont.display(58))
+                .monospacedDigit()
+            Eyebrow(note)
+                .multilineTextAlignment(.center)
         }
-        .buttonStyle(PressStyle())
+        .frame(maxWidth: .infinity)
     }
 }
 

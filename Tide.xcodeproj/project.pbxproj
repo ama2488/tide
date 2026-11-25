@@ -21,9 +21,22 @@
 		7A1D00000000000000000003 /* TideTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TideTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		7A1D00000000000000000050 /* Exceptions for "Tide" folder in "Tide" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Tide.entitlements,
+			);
+			target = 7A1D00000000000000000010 /* Tide */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		7A1D00000000000000000004 /* Tide */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				7A1D00000000000000000050 /* Exceptions for "Tide" folder in "Tide" target */,
+			);
 			path = Tide;
 			sourceTree = "<group>";
 		};
@@ -266,11 +279,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Tide/Tide.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = tide;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "tide reads the period days in Apple Health to know where you are in your cycle. Nothing leaves your phone.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "tide does not write to Apple Health.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -293,11 +309,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Tide/Tide.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = tide;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "tide reads the period days in Apple Health to know where you are in your cycle. Nothing leaves your phone.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "tide does not write to Apple Health.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

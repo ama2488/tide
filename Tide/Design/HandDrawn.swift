@@ -117,45 +117,57 @@ struct WobblyLine: Shape {
     }
 }
 
-// MARK: - Capsule
+// MARK: - Capsule / card
 
-/// A pill shape traced by hand.
+/// A pill (or, with `cornerRadius`, a rounded card) traced by hand.
 struct WobblyCapsule: Shape {
     var seed: UInt64 = 7
     /// Maximum drift in points.
     var amount: Double = 1.6
+    /// nil = fully rounded ends.
+    var cornerRadius: Double? = nil
 
     func path(in rect: CGRect) -> Path {
         let inset = rect.insetBy(dx: amount * 1.5, dy: amount * 1.5)
         let minX = Double(inset.minX), maxX = Double(inset.maxX)
-        let minY = Double(inset.minY), maxY = Double(inset.maxY), midY = Double(inset.midY)
-        let r = Double(min(inset.width, inset.height)) / 2
-        let straight = max(0, Double(inset.width) - 2 * r)
-        let arc = Double.pi * r
-        let total = 2 * straight + 2 * arc
+        let minY = Double(inset.minY), maxY = Double(inset.maxY)
+        let w = Double(inset.width), h = Double(inset.height)
+        let r = min(cornerRadius ?? .infinity, min(w, h) / 2)
+        let sw = max(0, w - 2 * r)          // horizontal straight
+        let sh = max(0, h - 2 * r)          // vertical straight
+        let quarter = Double.pi * r / 2
+        let total = 2 * sw + 2 * sh + 4 * quarter
 
         var rng = SeededRandom(seed: seed)
         let p1 = rng.unit() * 2 * .pi, p2 = rng.unit() * 2 * .pi
         let startOffset = rng.unit() * total
 
-        // point + outward normal at distance s along the perimeter
+        // point + outward normal at distance s along the perimeter, clockwise from top-left
+        func corner(_ cx: Double, _ cy: Double, _ a0: Double, _ s: Double) -> (x: Double, y: Double, nx: Double, ny: Double) {
+            let a = a0 + s / max(r, 0.0001)
+            return (cx + cos(a) * r, cy + sin(a) * r, cos(a), sin(a))
+        }
         func base(_ raw: Double) -> (x: Double, y: Double, nx: Double, ny: Double) {
             var s = raw.truncatingRemainder(dividingBy: total)
             if s < 0 { s += total }
-            if s < straight { return (minX + r + s, minY, 0, -1) }
-            s -= straight
-            if s < arc {
-                let a = -Double.pi / 2 + s / r
-                return (maxX - r + cos(a) * r, midY + sin(a) * r, cos(a), sin(a))
-            }
-            s -= arc
-            if s < straight { return (maxX - r - s, maxY, 0, 1) }
-            s -= straight
-            let a = Double.pi / 2 + s / r
-            return (minX + r + cos(a) * r, midY + sin(a) * r, cos(a), sin(a))
+            if s < sw { return (minX + r + s, minY, 0, -1) }
+            s -= sw
+            if s < quarter { return corner(maxX - r, minY + r, -.pi / 2, s) }
+            s -= quarter
+            if s < sh { return (maxX, minY + r + s, 1, 0) }
+            s -= sh
+            if s < quarter { return corner(maxX - r, maxY - r, 0, s) }
+            s -= quarter
+            if s < sw { return (maxX - r - s, maxY, 0, 1) }
+            s -= sw
+            if s < quarter { return corner(minX + r, maxY - r, .pi / 2, s) }
+            s -= quarter
+            if s < sh { return (minX, maxY - r - s, -1, 0) }
+            s -= sh
+            return corner(minX + r, minY + r, .pi, s)
         }
 
-        let steps = 140
+        let steps = 160
         let overshoot = total * 0.04
         var path = Path()
         for i in 0...steps {

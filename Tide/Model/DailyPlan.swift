@@ -13,6 +13,9 @@ struct DailyPlan {
     var subtitle: String {
         if phase == .menstrual { return "\(phase.season) · period day \(cycleDay)" }
         switch daysUntilPeriod {
+        case ..<(-1): return "\(phase.season) · running \(-daysUntilPeriod) days long"
+        case -1: return "\(phase.season) · running a day long"
+        case 0: return "\(phase.season) · period due today"
         case 1: return "\(phase.season) · period likely tomorrow"
         default: return "\(phase.season) · period in ~\(daysUntilPeriod) days"
         }

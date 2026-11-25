@@ -9,7 +9,10 @@ struct OnboardingView: View {
     @State private var cycle = 28
     @State private var period = 5
 
-    private let lastStep = 3
+    @State private var connecting = false
+
+    /// 0 welcome · 1 last period · 2 cycle · 3 period · 4 apple health (if available)
+    private var lastStep: Int { store.healthAvailable ? 4 : 3 }
 
     var body: some View {
         ZStack {
@@ -39,7 +42,8 @@ struct OnboardingView: View {
                     case 0: welcome
                     case 1: lastPeriod
                     case 2: cycleLength
-                    default: periodLength
+                    case 3: periodLength
+                    default: appleHealth
                     }
                 }
                 .id(step)
@@ -50,8 +54,23 @@ struct OnboardingView: View {
 
                 Spacer(minLength: 16)
 
-                InkButton(title: step == 0 ? "begin" : (step == lastStep ? "meet your day" : "next"), filled: true, seed: UInt64(step + 3)) {
-                    advance()
+                if step == 4 {
+                    VStack(spacing: 18) {
+                        InkButton(title: connecting ? "connecting…" : "connect apple health", filled: true, seed: 9) {
+                            connecting = true
+                            Task {
+                                saveAnswers()
+                                await store.connectHealth()
+                                store.hasOnboarded = true
+                            }
+                        }
+                        .disabled(connecting)
+                        InkLink(title: "skip for now") { finish() }
+                    }
+                } else {
+                    InkButton(title: step == 0 ? "begin" : (step == lastStep ? "meet your day" : "next"), filled: true, seed: UInt64(step + 3)) {
+                        advance()
+                    }
                 }
             }
             .padding(.horizontal, 28)
@@ -103,6 +122,24 @@ struct OnboardingView: View {
         }
     }
 
+    private var appleHealth: some View {
+        VStack(spacing: 32) {
+            ZStack {
+                WobblyCircle(seed: 90, wobble: 0.07, closed: true)
+                    .fill(Phase.menstrual.color.opacity(0.16))
+                WobblyCircle(seed: 91, wobble: 0.04)
+                    .stroke(Palette.ink, lineWidth: 1.2)
+                    .padding(26)
+                Text("♡")
+                    .font(TideFont.display(40))
+                    .foregroundStyle(Phase.menstrual.color)
+            }
+            .frame(width: 140, height: 140)
+            question("already track your cycle somewhere?",
+                     hint: "tide can read the period days in apple health — from apple's cycle tracking, oura and other apps. it only reads, and nothing leaves your phone.")
+        }
+    }
+
     private func question(_ text: String, hint: String) -> some View {
         VStack(spacing: 12) {
             Text(text)
@@ -131,11 +168,20 @@ struct OnboardingView: View {
     private func advance() {
         if step < lastStep {
             withAnimation(.easeInOut(duration: 0.4)) { step += 1 }
-            return
+        } else {
+            finish()
         }
+    }
+
+    private func saveAnswers() {
         store.lastPeriodStart = Calendar.current.startOfDay(for: start)
         store.cycleLength = cycle
         store.periodLength = period
+        store.logPeriodStart(on: start)
+    }
+
+    private func finish() {
+        saveAnswers()
         store.hasOnboarded = true
     }
 }
