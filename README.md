@@ -1,4 +1,6 @@
-# tide
+# persi
+
+*Formerly "tide". The Xcode project, folders and code still use the internal name `Tide`; everything people see says persi.*
 
 A gentle, native iOS guide to living with your menstrual cycle, not against it.
 
@@ -7,6 +9,10 @@ small things to try today: something to **nourish** you, something to **steep**,
 a way to **move** and a way to **tend** to yourself. Check them off as you go.
 Tap any of them to see *why it helps right now*. The deeper reading on hormones
 and the full menu for each phase is one tap further down.
+
+## App Store
+
+See [`AppStore/APP_STORE.md`](AppStore/APP_STORE.md) for the step-by-step checklist, listing copy and review notes, and [`AppStore/privacy.html`](AppStore/privacy.html) for the privacy policy to host.
 
 ## Running it
 
@@ -22,11 +28,11 @@ in `UserDefaults`.
 
 ### Trying Apple Health in the simulator
 The simulator has its own Health app. Open it → *Browse* → *Cycle Tracking* →
-log a few periods a month apart. Then in tide: *settings → connect apple health*.
+log a few periods a month apart. Then in persi: *settings → connect apple health*.
 
 ## Daily suggestions
 
-Each day tide rotates to a new food, herb, movement and practice for your
+Each day persi rotates to a new food, herb, movement and practice for your
 phase. In the **last five days of luteal** (and any days running late) it
 switches to gentler, PMS-focused lists and encouragement, and the subtitle
 reads "late luteal".
@@ -43,7 +49,7 @@ Add your own teas, foods or practices (settings → your rituals, or "add your
 own" on any phase page). Give each a name, an optional note, a type (steep,
 nourish, move, tend) and when it belongs: menstrual, follicular, ovulatory,
 early luteal, late luteal, or every day. On those days it takes the place of
-tide's suggestion of the same type, marked "yours".
+persi's suggestion of the same type, marked "yours".
 
 A ritual can also be a **protocol**: add several items (e.g. three teas) and
 they show together as one row, listed under the name, with one check-off.
@@ -59,7 +65,7 @@ section. The copy is honest that research on seed cycling itself is thin.
 ## Period log
 
 Every "my period started / ended" tap is saved. Once there are **two complete
-cycles** (three logged starts), tide uses the average of your last six cycles
+cycles** (three logged starts), persi uses the average of your last six cycles
 and periods instead of the numbers you entered at setup. Gaps over 45 days are
 treated as a missed log and skipped. You can turn learning off in settings.
 
@@ -70,9 +76,9 @@ days long") for up to 10 days, rather than jumping to day 1.
 
 ## Apple Health
 
-Read-only. tide reads menstrual flow days from HealthKit, whichever app wrote
+Read-only. persi reads menstrual flow days from HealthKit, whichever app wrote
 them (Apple Cycle Tracking, Oura, Natural Cycles…), groups them into periods,
-and merges them into the log. A period you logged in tide always wins; Health
+and merges them into the log. A period you logged in persi always wins; Health
 only fills in its end date. Sync runs when the app opens.
 
 ## Structure

@@ -73,7 +73,7 @@ struct Prose: View {
 
 struct Disclaimer: View {
     var body: some View {
-        Text("tide offers gentle, general wellness ideas — not medical advice. herbs can interact with medications, hormonal birth control and pregnancy, so check with a clinician before starting any new herb or supplement.")
+        Text("persi offers gentle, general wellness ideas — not medical advice. herbs can interact with medications, hormonal birth control and pregnancy, so check with a clinician before starting any new herb or supplement.")
             .font(TideFont.label(10))
             .lineSpacing(3)
             .foregroundStyle(Palette.soft)

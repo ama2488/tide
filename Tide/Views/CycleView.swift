@@ -50,7 +50,7 @@ struct CycleView: View {
                             }
                             .padding(.vertical, 10)
 
-                            Text("tide estimates your phases from averages. bodies aren't calendars — trust what you feel.")
+                            Text("persi estimates your phases from averages. bodies aren't calendars — trust what you feel.")
                                 .font(TideFont.label(10))
                                 .lineSpacing(3)
                                 .multilineTextAlignment(.center)

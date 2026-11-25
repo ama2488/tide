@@ -287,7 +287,7 @@ struct RitualsView: View {
                     }
 
                     if store.rituals.isEmpty {
-                        Text("add one and tide will show it on the right days, in place of its own suggestion of the same kind.")
+                        Text("add one and persi will show it on the right days, in place of its own suggestion of the same kind.")
                             .font(TideFont.body(16))
                             .lineSpacing(3)
                             .foregroundStyle(Palette.soft)

@@ -284,9 +284,10 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = tide;
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "tide reads the period days in Apple Health to know where you are in your cycle. Nothing leaves your phone.";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "tide does not write to Apple Health.";
+				INFOPLIST_KEY_CFBundleDisplayName = persi;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "persi reads the period days in Apple Health to know where you are in your cycle. Nothing leaves your phone.";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "persi does not write to Apple Health.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -314,9 +315,10 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = tide;
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "tide reads the period days in Apple Health to know where you are in your cycle. Nothing leaves your phone.";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "tide does not write to Apple Health.";
+				INFOPLIST_KEY_CFBundleDisplayName = persi;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "persi reads the period days in Apple Health to know where you are in your cycle. Nothing leaves your phone.";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "persi does not write to Apple Health.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

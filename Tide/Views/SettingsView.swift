@@ -35,7 +35,7 @@ struct SettingsView: View {
                         if !store.hiddenSuggestions.isEmpty {
                             VStack(alignment: .leading, spacing: 12) {
                                 Eyebrow("hidden suggestions")
-                                Text("you've asked tide not to suggest \(store.hiddenSuggestions.count) \(store.hiddenSuggestions.count == 1 ? "thing" : "things").")
+                                Text("you've asked persi not to suggest \(store.hiddenSuggestions.count) \(store.hiddenSuggestions.count == 1 ? "thing" : "things").")
                                     .font(TideFont.body(15))
                                     .foregroundStyle(Palette.soft)
                                 InkLink(title: "bring them back") {
@@ -45,7 +45,7 @@ struct SettingsView: View {
                         }
 
                         VStack(alignment: .leading, spacing: 20) {
-                            Text("everything stays on your phone. tide has no account and sends nothing anywhere.")
+                            Text("everything stays on your phone. persi has no account and sends nothing anywhere.")
                                 .font(TideFont.body(15))
                                 .foregroundStyle(Palette.soft)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -121,7 +121,7 @@ struct SettingsView: View {
     private var appleHealth: some View {
         VStack(alignment: .leading, spacing: 16) {
             Eyebrow("apple health")
-            Text("tide can read the period days you log in apple health — from apple's cycle tracking, oura, or any app that saves them there. it only reads, and nothing leaves your phone.")
+            Text("persi can read the period days you log in apple health — from apple's cycle tracking, oura, or any app that saves them there. it only reads, and nothing leaves your phone.")
                 .font(TideFont.body(15))
                 .lineSpacing(3)
                 .foregroundStyle(Palette.soft)
@@ -138,7 +138,7 @@ struct SettingsView: View {
                     InkLink(title: "sync now") { Task { await store.syncHealth() } }
                     InkLink(title: "disconnect") { store.disconnectHealth() }
                 }
-                Text("to remove tide's access completely: settings → health → data access & devices → tide.")
+                Text("to remove persi's access completely: settings → health → data access & devices → persi.")
                     .font(TideFont.label(10))
                     .lineSpacing(3)
                     .foregroundStyle(Palette.soft)
@@ -197,7 +197,7 @@ struct SettingsView: View {
             }
             .tint(Phase.menstrual.color)
         } else {
-            Text("once you've logged a few periods, tide will learn these for you.")
+            Text("once you've logged a few periods, persi will learn these for you.")
                 .font(TideFont.label(10))
                 .lineSpacing(3)
                 .foregroundStyle(Palette.soft)

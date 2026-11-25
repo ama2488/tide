@@ -116,7 +116,7 @@ struct LogPeriodSheet: View {
                     }
 
                     if existing?.source == .health {
-                        Text("imported from apple health. edits here stay in tide and may be refreshed on the next sync.")
+                        Text("imported from apple health. edits here stay in persi and may be refreshed on the next sync.")
                             .font(TideFont.label(10))
                             .lineSpacing(3)
                             .foregroundStyle(Palette.soft)
@@ -190,7 +190,7 @@ struct PeriodHistoryView: View {
 
                     InkButton(title: "log a period", seed: 37) { adding = true }
 
-                    Text("tap a period to edit it. tide uses your last \(CycleStats.recentWindow) cycles, and skips gaps that look like a missed log.")
+                    Text("tap a period to edit it. persi uses your last \(CycleStats.recentWindow) cycles, and skips gaps that look like a missed log.")
                         .font(TideFont.label(10))
                         .lineSpacing(3)
                         .foregroundStyle(Palette.soft)
@@ -215,7 +215,7 @@ struct PeriodHistoryView: View {
                 Eyebrow("from your last \(store.cyclesLogged) cycles")
             } else {
                 let needed = max(1, 3 - store.periods.count)
-                Text("log \(needed) more \(needed == 1 ? "period" : "periods") and tide will learn your rhythm.")
+                Text("log \(needed) more \(needed == 1 ? "period" : "periods") and persi will learn your rhythm.")
                     .font(TideFont.display(28))
                     .fixedSize(horizontal: false, vertical: true)
             }

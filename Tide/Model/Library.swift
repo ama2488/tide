@@ -43,7 +43,7 @@ enum Library {
                 kind: .seeds,
                 name: "flax + pumpkin",
                 action: "a tablespoon each of ground flax and pumpkin seeds",
-                why: "seed cycling pairs different seeds with the two halves of your cycle. from your period until ovulation, it's flax and pumpkin: flax's lignans may help your body balance rising estrogen, and pumpkin seeds are rich in zinc, which supports the follicle as it matures. grind the flax (or buy it ground) so your body can use it. research on seed cycling itself is still thin, so treat it as a simple, nourishing daily ritual rather than a treatment. tide will tell you when to switch."
+                why: "seed cycling pairs different seeds with the two halves of your cycle. from your period until ovulation, it's flax and pumpkin: flax's lignans may help your body balance rising estrogen, and pumpkin seeds are rich in zinc, which supports the follicle as it matures. grind the flax (or buy it ground) so your body can use it. research on seed cycling itself is still thin, so treat it as a simple, nourishing daily ritual rather than a treatment. persi will tell you when to switch."
             )
         case .second:
             Suggestion(
@@ -377,7 +377,7 @@ enum Library {
             "a quiet night and a big bowl of something is a perfectly good plan.",
         ],
         late: LateContent(
-            intro: "in the last four or five days, progesterone and estrogen both fall. this is when pms tends to show up, so tide gets gentler here: more magnesium and calcium, calming herbs, softer movement and lower expectations.",
+            intro: "in the last four or five days, progesterone and estrogen both fall. this is when pms tends to show up, so persi gets gentler here: more magnesium and calcium, calming herbs, softer movement and lower expectations.",
             foods: [
                 food("dark chocolate + almonds",
                      "have a few squares of dark chocolate with almonds",

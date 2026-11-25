@@ -86,7 +86,7 @@ struct OnboardingView: View {
                 ForEach(Phase.allCases) { PhaseGlyph($0).frame(width: 58, height: 58) }
             }
             VStack(spacing: 14) {
-                Text("tide")
+                Text("persi")
                     .font(TideFont.display(68))
                     .italic()
                 Text("a gentle daily guide to living with your cycle, not against it.")
@@ -136,7 +136,7 @@ struct OnboardingView: View {
             }
             .frame(width: 140, height: 140)
             question("already track your cycle somewhere?",
-                     hint: "tide can read the period days in apple health — from apple's cycle tracking, oura and other apps. it only reads, and nothing leaves your phone.")
+                     hint: "persi can read the period days in apple health — from apple's cycle tracking, oura and other apps. it only reads, and nothing leaves your phone.")
         }
     }
 
